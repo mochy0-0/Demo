@@ -1,0 +1,331 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta
+    name="description"
+    content="Center Portal Demo 管理画面"
+  >
+  <title>管理画面 | Center Portal</title>
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+
+<body>
+  <header class="admin-header">
+    <a class="admin-logo" href="../index.html">
+      <span class="admin-logo-mark">CP</span>
+      <span>
+        <strong>CENTER PORTAL</strong>
+        <small>ADMINISTRATION</small>
+      </span>
+    </a>
+
+    <a class="back-to-viewer" href="../index.html">
+      閲覧画面へ戻る →
+    </a>
+  </header>
+
+  <main class="admin-main">
+    <section class="admin-page-heading">
+      <p class="eyebrow">CONTENT MANAGEMENT</p>
+      <h1>コンテンツ管理</h1>
+      <p>
+        資料・お知らせなどの情報を管理します。
+      </p>
+    </section>
+
+    <!-- 管理メニュー -->
+    <nav class="admin-tabs" aria-label="管理メニュー">
+      <button
+        type="button"
+        class="admin-tab is-active"
+        data-admin-tab="materials"
+        aria-pressed="true"
+      >
+        資料管理
+      </button>
+
+      <button
+        type="button"
+        class="admin-tab"
+        data-admin-tab="announcements"
+        aria-pressed="false"
+      >
+        お知らせ管理
+      </button>
+    </nav>
+
+    <!-- 資料管理 -->
+    <section
+      class="admin-panel"
+      id="materialsPanel"
+      aria-labelledby="materialsHeading"
+    >
+      <div class="panel-heading">
+        <div>
+          <h2 id="materialsHeading">資料一覧</h2>
+          <p>資料の追加・編集・削除・表示状態の変更</p>
+        </div>
+
+        <button
+          type="button"
+          class="primary-button"
+          id="addMaterialButton"
+        >
+          ＋ 資料を追加
+        </button>
+      </div>
+
+      <div class="admin-filter">
+        <label for="adminMaterialSearch">資料を検索</label>
+        <input
+          type="search"
+          id="adminMaterialSearch"
+          placeholder="資料名・キーワード"
+        >
+
+        <label for="materialStatusFilter">表示状態</label>
+        <select id="materialStatusFilter">
+          <option value="all">すべて</option>
+          <option value="visible">表示中</option>
+          <option value="hidden">非表示</option>
+        </select>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th scope="col">資料名</th>
+              <th scope="col">カテゴリー</th>
+              <th scope="col">更新日</th>
+              <th scope="col">状態</th>
+              <th scope="col">操作</th>
+            </tr>
+          </thead>
+
+          <tbody id="materialsTableBody">
+            <!-- 資料一覧をJavaScriptで表示 -->
+          </tbody>
+        </table>
+      </div>
+
+      <p class="admin-message" id="materialsMessage" aria-live="polite">
+        資料一覧を読み込んでいます。
+      </p>
+    </section>
+
+    <!-- お知らせ管理 -->
+    <section
+      class="admin-panel"
+      id="announcementsPanel"
+      aria-labelledby="announcementsHeading"
+      hidden
+    >
+      <div class="panel-heading">
+        <div>
+          <h2 id="announcementsHeading">お知らせ一覧</h2>
+          <p>お知らせの追加・編集・削除・非表示</p>
+        </div>
+
+        <button
+          type="button"
+          class="primary-button"
+          id="addAnnouncementButton"
+        >
+          ＋ お知らせを追加
+        </button>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th scope="col">タイトル</th>
+              <th scope="col">日付</th>
+              <th scope="col">状態</th>
+              <th scope="col">操作</th>
+            </tr>
+          </thead>
+
+          <tbody id="announcementsTableBody">
+            <!-- お知らせ一覧をJavaScriptで表示 -->
+          </tbody>
+        </table>
+      </div>
+
+      <p class="admin-message" id="announcementsMessage" aria-live="polite">
+        お知らせ一覧を読み込んでいます。
+      </p>
+    </section>
+
+    <!-- 資料編集フォーム -->
+    <section
+      class="admin-panel editor-panel"
+      id="materialEditorPanel"
+      aria-labelledby="materialEditorHeading"
+      hidden
+    >
+      <div class="panel-heading">
+        <div>
+          <h2 id="materialEditorHeading">資料を追加</h2>
+          <p>必要な情報を入力してください。</p>
+        </div>
+      </div>
+
+      <form id="materialForm">
+        <input type="hidden" id="materialId">
+
+        <div class="form-field">
+          <label for="materialTitle">資料名 <span>*</span></label>
+          <input
+            type="text"
+            id="materialTitle"
+            maxlength="120"
+            required
+          >
+        </div>
+
+        <div class="form-field">
+          <label for="materialCategory">メインカテゴリー <span>*</span></label>
+          <select id="materialCategory" required>
+            <option value="">選択してください</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label for="materialDetail">詳細カテゴリー <span>*</span></label>
+          <select id="materialDetail" required>
+            <option value="">先にメインカテゴリーを選択してください</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label for="materialType">資料の種類 <span>*</span></label>
+          <input
+            type="text"
+            id="materialType"
+            maxlength="60"
+            placeholder="例：業務手順"
+            required
+          >
+        </div>
+
+        <div class="form-field">
+          <label for="materialDescription">概要</label>
+          <textarea
+            id="materialDescription"
+            rows="3"
+            maxlength="300"
+          ></textarea>
+        </div>
+
+        <div class="form-field">
+          <label for="materialContent">資料の内容 <span>*</span></label>
+          <textarea
+            id="materialContent"
+            rows="8"
+            required
+          ></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="primary-button">
+            保存する
+          </button>
+
+          <button
+            type="button"
+            class="secondary-button"
+            id="cancelMaterialEdit"
+          >
+            キャンセル
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- お知らせ編集フォーム -->
+    <section
+      class="admin-panel editor-panel"
+      id="announcementEditorPanel"
+      aria-labelledby="announcementEditorHeading"
+      hidden
+    >
+      <div class="panel-heading">
+        <div>
+          <h2 id="announcementEditorHeading">お知らせを追加</h2>
+          <p>掲載するお知らせを入力してください。</p>
+        </div>
+      </div>
+
+      <form id="announcementForm">
+        <input type="hidden" id="announcementId">
+
+        <div class="form-field">
+          <label for="announcementTitle">タイトル <span>*</span></label>
+          <input
+            type="text"
+            id="announcementTitle"
+            maxlength="120"
+            required
+          >
+        </div>
+
+        <div class="form-field">
+          <label for="announcementDate">掲載日 <span>*</span></label>
+          <input
+            type="date"
+            id="announcementDate"
+            required
+          >
+        </div>
+
+        <div class="form-field">
+          <label for="announcementType">種類 <span>*</span></label>
+          <input
+            type="text"
+            id="announcementType"
+            maxlength="40"
+            placeholder="例：お知らせ"
+            required
+          >
+        </div>
+
+        <div class="form-field">
+          <label for="announcementContent">内容</label>
+          <textarea
+            id="announcementContent"
+            rows="5"
+            maxlength="2000"
+          ></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="primary-button">
+            保存する
+          </button>
+
+          <button
+            type="button"
+            class="secondary-button"
+            id="cancelAnnouncementEdit"
+          >
+            キャンセル
+          </button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <footer class="admin-footer">
+    <p>Center Portal Renewal Demo — 管理画面</p>
+    <p>架空データ専用のデモです。</p>
+  </footer>
+
+  <script src="../js/data.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
