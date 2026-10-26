@@ -24,6 +24,18 @@
 
     materialsPanel: document.getElementById("materialsPanel"),
     announcementsPanel: document.getElementById("announcementsPanel"),
+    shortcutPanels: {
+      "shortcut-test": document.getElementById("testShortcutPanel"),
+      "shortcut-file": document.getElementById("fileShortcutPanel")
+    },
+    shortcutTableBodies: {
+      test: document.getElementById("testShortcutTableBody"),
+      file: document.getElementById("fileShortcutTableBody")
+    },
+    shortcutMessages: {
+      test: document.getElementById("testShortcutMessage"),
+      file: document.getElementById("fileShortcutMessage")
+    },
 
     materialEditorPanel: document.getElementById("materialEditorPanel"),
     announcementEditorPanel: document.getElementById(
@@ -56,6 +68,7 @@
     materialCategory: document.getElementById("materialCategory"),
     materialDetail: document.getElementById("materialDetail"),
     materialType: document.getElementById("materialType"),
+    materialShortcut: document.getElementById("materialShortcut"),
     materialDescription: document.getElementById(
       "materialDescription"
     ),
@@ -157,6 +170,9 @@
   function showPanel(panel) {
     elements.materialsPanel.hidden = panel !== "materials";
     elements.announcementsPanel.hidden = panel !== "announcements";
+    Object.entries(elements.shortcutPanels).forEach(([key, section]) => {
+      section.hidden = key !== panel;
+    });
 
     elements.tabs.forEach((tab) => {
       const active = tab.dataset.adminTab === panel;
@@ -173,7 +189,31 @@
      資料管理
   ========================= */
 
-  function renderMaterialTable() {
+  function matchesShortcut(material, shortcut) {
+    const assignedShortcuts = Array.isArray(material.shortcuts)
+      ? material.shortcuts
+      : [];
+
+    if (assignedShortcuts.includes(shortcut)) {
+      return true;
+    }
+
+    const keyword = shortcut === "test" ? "テスト" : "ファイル";
+    const searchableText = [
+      material.title,
+      material.description,
+      material.type,
+      material.content,
+      getCategoryName(material.categoryId),
+      getDetailName(material.categoryId, material.detailId)
+    ]
+      .join(" ")
+      .toLocaleLowerCase("ja");
+
+    return searchableText.includes(keyword.toLocaleLowerCase("ja"));
+  }
+
+  function renderMaterialTable(tableBody = elements.materialsTableBody, options = {}) {
     const keyword = elements.materialSearch.value
       .trim()
       .toLocaleLowerCase("ja");
@@ -197,14 +237,16 @@
         status === "all" ||
         (status === "visible" && !material.hidden) ||
         (status === "hidden" && material.hidden);
+      const matchesShortcut = !options.shortcut ||
+        matchesShortcut(material, options.shortcut);
 
-      return matchesKeyword && matchesStatus;
+      return matchesKeyword && matchesStatus && matchesShortcut;
     });
 
-    elements.materialsTableBody.innerHTML = "";
+    tableBody.innerHTML = "";
 
     if (filtered.length === 0) {
-      elements.materialsTableBody.innerHTML = `
+      tableBody.innerHTML = `
         <tr>
           <td colspan="5">該当する資料はありません。</td>
         </tr>
@@ -271,12 +313,22 @@
           </td>
         `;
 
-        elements.materialsTableBody.appendChild(row);
+        tableBody.appendChild(row);
       });
     }
 
-    elements.materialsMessage.textContent =
-      `全${data.materials.length}件中 ${filtered.length}件を表示しています。`;
+    const message = options.shortcut
+      ? elements.shortcutMessages[options.shortcut]
+      : elements.materialsMessage;
+    message.textContent = options.shortcut
+      ? `${filtered.length}件の資料を管理しています。`
+      : `全${data.materials.length}件中 ${filtered.length}件を表示しています。`;
+  }
+
+  function renderShortcutTables() {
+    Object.entries(elements.shortcutTableBodies).forEach(([shortcut, tableBody]) => {
+      renderMaterialTable(tableBody, { shortcut });
+    });
   }
 
   function populateMaterialCategories(selectedCategoryId = "") {
@@ -325,12 +377,15 @@
     elements.materialDetail.value = selectedDetailId;
   }
 
-  function openMaterialEditor(material = null) {
+  function openMaterialEditor(material = null, shortcut = "") {
     elements.materialForm.reset();
 
     elements.materialId.value = material?.id ?? "";
     elements.materialTitle.value = material?.title ?? "";
     elements.materialType.value = material?.type ?? "";
+    elements.materialShortcut.value = material
+      ? getShortcutValue(material.shortcuts ?? [])
+      : shortcut;
     elements.materialDescription.value =
       material?.description ?? "";
     elements.materialContent.value = material?.content ?? "";
@@ -344,6 +399,19 @@
     if (material) {
       populateMaterialDetails();
       elements.materialDetail.value = material.detailId;
+    }
+
+    function getShortcutValue(shortcuts) {
+      if (shortcuts.includes("test") && shortcuts.includes("file")) {
+        return "both";
+      }
+      if (shortcuts.includes("test")) {
+        return "test";
+      }
+      if (shortcuts.includes("file")) {
+        return "file";
+      }
+      return "";
     }
 
     elements.materialEditorPanel.hidden = false;
@@ -370,6 +438,12 @@
     const categoryId = elements.materialCategory.value;
     const detailId = elements.materialDetail.value;
     const type = elements.materialType.value.trim();
+    const shortcutValue = elements.materialShortcut.value;
+    const shortcuts = shortcutValue === "both"
+      ? ["test", "file"]
+      : shortcutValue
+        ? [shortcutValue]
+        : [];
     const description = elements.materialDescription.value.trim();
     const content = elements.materialContent.value.trim();
 
@@ -401,6 +475,7 @@
       categoryId,
       detailId,
       type,
+      shortcuts,
       description,
       content,
       updatedAt: getToday(),
@@ -703,11 +778,24 @@
     openAnnouncementEditor();
   });
 
+  document.querySelectorAll("[data-add-shortcut]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const shortcut = button.dataset.addShortcut;
+      showPanel(`shortcut-${shortcut}`);
+      openMaterialEditor(null, shortcut);
+    });
+  });
+
   elements.materialSearch.addEventListener("input", renderMaterialTable);
+  elements.materialSearch.addEventListener("input", renderShortcutTables);
 
   elements.materialStatusFilter.addEventListener(
     "change",
     renderMaterialTable
+  );
+  elements.materialStatusFilter.addEventListener(
+    "change",
+    renderShortcutTables
   );
 
   elements.materialCategory.addEventListener("change", () => {
@@ -729,7 +817,7 @@
     closeAnnouncementEditor();
   });
 
-  elements.materialsTableBody.addEventListener("click", (event) => {
+  function handleMaterialTableClick(event) {
     const button = event.target.closest("button[data-action]");
 
     if (!button) {
@@ -755,6 +843,11 @@
     if (action === "delete-material") {
       deleteMaterial(id);
     }
+  }
+
+  elements.materialsTableBody.addEventListener("click", handleMaterialTableClick);
+  Object.values(elements.shortcutTableBodies).forEach((tableBody) => {
+    tableBody.addEventListener("click", handleMaterialTableClick);
   });
 
   elements.announcementsTableBody.addEventListener(
@@ -805,6 +898,7 @@
 
   function renderAll() {
     renderMaterialTable();
+    renderShortcutTables();
     renderAnnouncementTable();
     populateMaterialCategories(
       elements.materialCategory.value

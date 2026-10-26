@@ -14,13 +14,16 @@
 
 <body>
   <header class="admin-header">
-    <a class="admin-logo" href="../index.html">
-      <span class="admin-logo-mark">CP</span>
-      <span>
-        <strong>CENTER PORTAL</strong>
-        <small>ADMINISTRATION</small>
-      </span>
-    </a>
+    <div class="admin-brand">
+      <a class="admin-logo" href="../index.html">
+        <span class="admin-logo-mark">CP</span>
+        <span>
+          <strong>CENTER PORTAL</strong>
+          <small>ADMINISTRATION</small>
+        </span>
+      </a>
+      <span class="admin-mode-badge">管理者用</span>
+    </div>
 
     <a class="back-to-viewer" href="../index.html">
       閲覧画面へ戻る →
@@ -54,6 +57,24 @@
         aria-pressed="false"
       >
         お知らせ管理
+      </button>
+
+      <button
+        type="button"
+        class="admin-tab"
+        data-admin-tab="shortcut-test"
+        aria-pressed="false"
+      >
+        確認テスト用
+      </button>
+
+      <button
+        type="button"
+        class="admin-tab"
+        data-admin-tab="shortcut-file"
+        aria-pressed="false"
+      >
+        席替え用
       </button>
     </nav>
 
@@ -161,6 +182,70 @@
       </p>
     </section>
 
+    <section
+      class="admin-panel"
+      id="testShortcutPanel"
+      aria-labelledby="testShortcutHeading"
+      hidden
+    >
+      <div class="panel-heading">
+        <div>
+          <h2 id="testShortcutHeading">確認テスト用の資料</h2>
+          <p>確認テスト用ショートカットに表示する資料を管理します。</p>
+        </div>
+        <button type="button" class="primary-button" data-add-shortcut="test">
+          ＋ 資料を追加
+        </button>
+      </div>
+      <div class="table-wrapper">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th scope="col">資料名</th>
+              <th scope="col">カテゴリー</th>
+              <th scope="col">更新日</th>
+              <th scope="col">状態</th>
+              <th scope="col">操作</th>
+            </tr>
+          </thead>
+          <tbody id="testShortcutTableBody"></tbody>
+        </table>
+      </div>
+      <p class="admin-message" id="testShortcutMessage" aria-live="polite"></p>
+    </section>
+
+    <section
+      class="admin-panel"
+      id="fileShortcutPanel"
+      aria-labelledby="fileShortcutHeading"
+      hidden
+    >
+      <div class="panel-heading">
+        <div>
+          <h2 id="fileShortcutHeading">席替え用の資料</h2>
+          <p>席替え用ショートカットに表示する資料を管理します。</p>
+        </div>
+        <button type="button" class="primary-button" data-add-shortcut="file">
+          ＋ 資料を追加
+        </button>
+      </div>
+      <div class="table-wrapper">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th scope="col">資料名</th>
+              <th scope="col">カテゴリー</th>
+              <th scope="col">更新日</th>
+              <th scope="col">状態</th>
+              <th scope="col">操作</th>
+            </tr>
+          </thead>
+          <tbody id="fileShortcutTableBody"></tbody>
+        </table>
+      </div>
+      <p class="admin-message" id="fileShortcutMessage" aria-live="polite"></p>
+    </section>
+
     <!-- 資料編集フォーム -->
     <section
       class="admin-panel editor-panel"
@@ -211,6 +296,17 @@
             placeholder="例：業務手順"
             required
           >
+        </div>
+
+        <div class="form-field">
+          <label for="materialShortcut">表示するショートカット</label>
+          <select id="materialShortcut">
+            <option value="">ショートカットに表示しない</option>
+            <option value="test">確認テスト用</option>
+            <option value="file">席替え用</option>
+            <option value="both">確認テスト用・席替え用</option>
+          </select>
+          <small>選択したタブと閲覧画面のショートカットに資料が表示されます。</small>
         </div>
 
         <div class="form-field">

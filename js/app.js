@@ -80,6 +80,7 @@ let currentCategory = "全体";
     });
 
     detailCategoryList.innerHTML = "";
+    detailCategoryList.classList.remove("is-material-list");
 
     if (!category || category.details.length === 0) {
       detailCategoryList.innerHTML =
@@ -132,15 +133,20 @@ let currentCategory = "全体";
         material.detailId === detailId
     );
 
-
-
-
+    detailCategoryList.classList.add("is-material-list");
     detailCategoryList.innerHTML = `
       <div class="material-list-heading">
-        <h2>${escapeHTML(detail.name)}</h2>
-        <button type="button" class="back-button" id="backToCategories">
-          ← カテゴリーに戻る
-        </button>
+        <div class="material-list-heading-main">
+          <p class="material-list-breadcrumb">${escapeHTML(category.name)} <span aria-hidden="true">/</span> ${escapeHTML(detail.name)}</p>
+          <h2>資料一覧</h2>
+          <p class="material-list-description">資料を選択すると、内容を確認できます。</p>
+        </div>
+        <div class="material-list-heading-actions">
+          <span class="material-count">${materials.length}件の資料</span>
+          <button type="button" class="back-button" id="backToCategories">
+            <span aria-hidden="true">←</span> カテゴリー一覧に戻る
+          </button>
+        </div>
       </div>
       <div class="material-list" id="materialList"></div>
     `;
@@ -153,8 +159,13 @@ let currentCategory = "全体";
     const materialList = document.getElementById("materialList");
 
     if (materials.length === 0) {
-      materialList.innerHTML =
-        '<p class="empty-message">このカテゴリーには資料がありません。</p>';
+      materialList.innerHTML = `
+        <div class="material-empty-state">
+          <span class="material-empty-icon" aria-hidden="true">資料</span>
+          <h3>このカテゴリーには資料がありません</h3>
+          <p>カテゴリー一覧に戻り、別のカテゴリーを選択してください。</p>
+        </div>
+      `;
       return;
     }
 
@@ -163,20 +174,20 @@ let currentCategory = "全体";
       item.className = "material-item";
 
       item.innerHTML = `
-        <div>
-          <p class="material-item-title">${escapeHTML(material.title)}</p>
-          <p class="material-item-meta">
-            ${escapeHTML(material.type)} ・ 更新日：
-            ${escapeHTML(material.updatedAt)}
-          </p>
-          <p>${escapeHTML(material.description)}</p>
+        <div class="material-item-info">
+          <h3 class="material-item-title">${escapeHTML(material.title)}</h3>
+          <div class="material-item-meta">
+            <span class="material-type">${escapeHTML(material.type)}</span>
+            <span>更新日：${escapeHTML(material.updatedAt)}</span>
+          </div>
+          <p class="material-item-description">${escapeHTML(material.description)}</p>
         </div>
         <button
           type="button"
           class="material-open-button"
           data-material-id="${escapeHTML(material.id)}"
         >
-          資料を開く
+          資料を開く <span aria-hidden="true">→</span>
         </button>
       `;
 
@@ -221,15 +232,20 @@ let currentCategory = "全体";
     });
   }
 
-  function renderSearchResults(keyword) {
+  function renderSearchResults(
+    keyword,
+    resultsSection = searchResults,
+    resultsContainer = searchResultsList,
+    shortcut = ""
+  ) {
     const normalizedKeyword = keyword.trim().toLocaleLowerCase("ja");
 
     hideMaterialDetail();
-    searchResults.hidden = false;
-    searchResultsList.innerHTML = "";
+    resultsSection.hidden = false;
+    resultsContainer.innerHTML = "";
 
     if (!normalizedKeyword) {
-      searchResultsList.innerHTML =
+      resultsContainer.innerHTML =
         '<p class="empty-message">検索キーワードを入力してください。</p>';
       return;
     }
@@ -246,20 +262,24 @@ let currentCategory = "全体";
         .join(" ")
         .toLocaleLowerCase("ja");
 
-      return searchableText.includes(normalizedKeyword);
+      const belongsToShortcut = shortcut &&
+        Array.isArray(material.shortcuts) &&
+        material.shortcuts.includes(shortcut);
+
+      return belongsToShortcut || searchableText.includes(normalizedKeyword);
     });
 
     const count = document.createElement("p");
     count.className = "search-result-count";
     count.textContent = `${results.length}件の資料が見つかりました。`;
 
-    searchResultsList.appendChild(count);
+    resultsContainer.appendChild(count);
 
     if (results.length === 0) {
       const empty = document.createElement("p");
       empty.className = "empty-message";
       empty.textContent = "該当する資料はありません。";
-      searchResultsList.appendChild(empty);
+      resultsContainer.appendChild(empty);
       return;
     }
 
@@ -291,13 +311,16 @@ let currentCategory = "全体";
       list.appendChild(item);
     });
 
-    searchResultsList.appendChild(list);
+    resultsContainer.appendChild(list);
   }
 
 
 
   function renderAnnouncements() {
     newsList.innerHTML = "";
+    const announcementDetail = document.getElementById("announcementDetail");
+    announcementDetail.hidden = true;
+    announcementDetail.innerHTML = "";
 
     const visibleAnnouncements = data.announcements.filter(
       (item) => !item.hidden
@@ -314,37 +337,27 @@ let currentCategory = "全体";
 
 
       item.innerHTML = `
-  <button
-    type="button"
-    data-announcement-id="${escapeHTML(announcement.id)}"
-    aria-label="${escapeHTML(announcement.title)}の詳細を表示"
-  >
-    <span class="information-date">${escapeHTML(announcement.date)}</span>
-    <span class="announcement-title-row">
-      <span class="information-badge">${escapeHTML(announcement.type)}</span>
-      <span class="information-title">${escapeHTML(announcement.title)}</span>
-    </span>
-  </button>
-`;
-
+        <button
+          type="button"
+          class="announcement-link"
+          data-announcement-id="${escapeHTML(announcement.id)}"
+          aria-label="${escapeHTML(announcement.title)}の詳細を表示"
+          aria-controls="announcementDetail"
+          aria-expanded="false"
+        >
+          <span class="information-date">${escapeHTML(announcement.date)}</span>
+          <span class="announcement-title-row">
+            <span class="information-badge">${escapeHTML(announcement.type)}</span>
+            <span class="information-title">${escapeHTML(announcement.title)}</span>
+          </span>
+          <span class="announcement-link-hint" aria-hidden="true">詳細を見る <span>→</span></span>
+        </button>
+      `;
 
       const button = item.querySelector("button");
 
-      // ボタンの標準的な見た目をなくし、既存の表示を維持する
-      button.style.display = "flex";
-      button.style.flexDirection = "column";
-      button.style.alignItems = "flex-start";
-      button.style.width = "100%";
-      button.style.padding = "0";
-      button.style.border = "none";
-      button.style.background = "transparent";
-      button.style.color = "inherit";
-      button.style.font = "inherit";
-      button.style.textAlign = "left";
-      button.style.cursor = "pointer";
-
       button.addEventListener("click", () => {
-        showAnnouncementDetail(announcement.id);
+        showAnnouncementDetail(announcement.id, button);
       });
 
       newsList.appendChild(item);
@@ -353,7 +366,7 @@ let currentCategory = "全体";
 
 
 
-  function showAnnouncementDetail(announcementId) {
+  function showAnnouncementDetail(announcementId, triggerButton) {
     const announcement = data.announcements.find(
       (item) => item.id === announcementId && !item.hidden
     );
@@ -362,53 +375,41 @@ let currentCategory = "全体";
       return;
     }
 
-    const detail = document.createElement("div");
-    detail.className = "announcement-detail";
+    newsList.querySelectorAll(".announcement-link").forEach((button) => {
+      button.classList.remove("is-selected");
+      button.setAttribute("aria-expanded", "false");
+    });
 
+    triggerButton.classList.add("is-selected");
+    triggerButton.setAttribute("aria-expanded", "true");
+
+    const detail = document.getElementById("announcementDetail");
     detail.innerHTML = `
-    <div class="announcement-detail-header">
-      <span class="information-badge">
-        ${escapeHTML(announcement.type)}
-      </span>
-      <span class="information-date">
-        ${escapeHTML(announcement.date)}
-      </span>
-    </div>
+      <p class="announcement-detail-label">お知らせの詳細</p>
+      <div class="announcement-detail-meta">
+        <span class="information-badge">${escapeHTML(announcement.type)}</span>
+        <span class="announcement-detail-date">
+          掲載日：${escapeHTML(announcement.date)}
+        </span>
+      </div>
+      <h3 id="announcementDetailTitle">${escapeHTML(announcement.title)}</h3>
+      <div class="announcement-detail-content"></div>
+      <button type="button" class="back-button" id="closeAnnouncementDetail">
+        <span aria-hidden="true">←</span> お知らせ一覧に戻る
+      </button>
+    `;
 
-    <h2>${escapeHTML(announcement.title)}</h2>
+    detail.querySelector(".announcement-detail-content").textContent =
+      announcement.content || "詳細情報はありません。";
+    detail.hidden = false;
 
-    <div class="announcement-detail-content"></div>
-
-    <button
-      type="button"
-      class="back-button"
-      id="closeAnnouncementDetail"
-    >
-      お知らせ一覧に戻る
-    </button>
-  `;
-
-    const content = detail.querySelector(
-      ".announcement-detail-content"
-    );
-
-    content.textContent = announcement.content || "詳細情報はありません。";
-
-    const existingDetail = document.getElementById(
-      "announcementDetail"
-    );
-
-    if (existingDetail) {
-      existingDetail.remove();
-    }
-
-    detail.id = "announcementDetail";
-    newsList.parentElement.appendChild(detail);
-
-    detail.querySelector("#closeAnnouncementDetail")
-      .addEventListener("click", () => {
-        detail.remove();
-      });
+    detail.querySelector("#closeAnnouncementDetail").addEventListener("click", () => {
+      detail.hidden = true;
+      detail.innerHTML = "";
+      triggerButton.classList.remove("is-selected");
+      triggerButton.setAttribute("aria-expanded", "false");
+      triggerButton.focus();
+    });
 
     detail.scrollIntoView({
       behavior: "smooth",
@@ -502,6 +503,10 @@ if (title) {
     event.preventDefault();
 
     currentDetailId = null;
+    document.querySelectorAll(".shortcut-results").forEach((section) => {
+      section.hidden = true;
+      section.querySelector(".shortcut-results-list").innerHTML = "";
+    });
     renderSearchResults(searchInput.value);
   });
 
@@ -509,13 +514,31 @@ if (title) {
     button.addEventListener("click", () => {
       const shortcut = button.dataset.shortcut;
       const keyword = shortcut === "test" ? "テスト" : "ファイル";
+      const resultsSection = button
+        .closest(".shortcut-item")
+        .querySelector(".shortcut-results");
+      const resultsContainer = resultsSection.querySelector(
+        ".shortcut-results-list"
+      );
 
       searchInput.value = keyword;
-      renderSearchResults(keyword);
+      hideSearchResults();
+      document.querySelectorAll(".shortcut-results").forEach((section) => {
+        if (section !== resultsSection) {
+          section.hidden = true;
+          section.querySelector(".shortcut-results-list").innerHTML = "";
+        }
+      });
+      renderSearchResults(
+        keyword,
+        resultsSection,
+        resultsContainer,
+        shortcut
+      );
 
-      searchResults.scrollIntoView({
+      resultsSection.scrollIntoView({
         behavior: "smooth",
-        block: "start"
+        block: "nearest"
       });
     });
   });

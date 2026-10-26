@@ -87,10 +87,29 @@ a {
   border-bottom: 1px solid var(--admin-border);
 }
 
+.admin-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
 .admin-logo {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.admin-mode-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 4px 11px;
+  background: var(--admin-primary);
+  color: #ffffff;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .admin-logo-mark {

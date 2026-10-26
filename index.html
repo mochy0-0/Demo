@@ -107,6 +107,14 @@
         <ul class="information-list" id="newsList">
           <!-- お知らせをJavaScriptで表示 -->
         </ul>
+
+        <section
+          class="announcement-detail"
+          id="announcementDetail"
+          aria-labelledby="announcementDetailTitle"
+          aria-live="polite"
+          hidden
+        ></section>
       </section>
     </div>
 
@@ -115,28 +123,40 @@
     <section class="shortcut-section" aria-labelledby="shortcutTitle">
       <div class="panel-heading">
         <div>
-          <h2 id="shortcutTitle">ショートカット</h2>
+          <h2 id="shortcutTitle">オペレーター用</h2>
         </div>
       </div>
 
       <div class="shortcut-list">
-        <button type="button" class="shortcut-button" data-shortcut="test">
-          <span class="shortcut-icon" aria-hidden="true">01</span>
-          <span>
-            <strong>月次確認テスト</strong>
-            <small>確認テストに関する情報</small>
-          </span>
-          <span class="shortcut-arrow" aria-hidden="true">→</span>
-        </button>
+        <div class="shortcut-item">
+          <button type="button" class="shortcut-button" data-shortcut="test">
+            <span class="shortcut-icon" aria-hidden="true">01</span>
+            <span>
+              <strong>確認テスト用</strong>
+              <small>確認テストに関するファイル</small>
+            </span>
+            <span class="shortcut-arrow" aria-hidden="true">→</span>
+          </button>
+          <section class="shortcut-results search-results" aria-labelledby="testResultsTitle" aria-live="polite" hidden>
+            <h2 id="testResultsTitle">確認テスト用の資料</h2>
+            <div class="shortcut-results-list"></div>
+          </section>
+        </div>
 
-        <button type="button" class="shortcut-button" data-shortcut="file">
-          <span class="shortcut-icon" aria-hidden="true">02</span>
-          <span>
-            <strong>ファイル確認</strong>
-            <small>ファイルの確認に関する情報</small>
-          </span>
-          <span class="shortcut-arrow" aria-hidden="true">→</span>
-        </button>
+        <div class="shortcut-item">
+          <button type="button" class="shortcut-button" data-shortcut="file">
+            <span class="shortcut-icon" aria-hidden="true">02</span>
+            <span>
+              <strong>席替え用</strong>
+              <small>席替えファイル一括DL</small>
+            </span>
+            <span class="shortcut-arrow" aria-hidden="true">→</span>
+          </button>
+          <section class="shortcut-results search-results" aria-labelledby="fileResultsTitle" aria-live="polite" hidden>
+            <h2 id="fileResultsTitle">席替え用の資料</h2>
+            <div class="shortcut-results-list"></div>
+          </section>
+        </div>
       </div>
     </section>
   </main>
