@@ -1,6 +1,6 @@
 
 /* =========================
-   基本設定
+   共通の色・余白・文字と入力操作のアクセシビリティ設定
 ========================= */
 
 :root {
@@ -336,6 +336,10 @@ a {
   margin-bottom: 22px;
 }
 
+.admin-filter-single {
+  grid-template-columns: auto minmax(180px, 1fr);
+}
+
 .admin-filter label {
   color: var(--admin-text);
   font-size: 12px;
@@ -355,7 +359,7 @@ a {
 }
 
 /* =========================
-   テーブル
+   管理一覧テーブル、ページ送り、状態・操作ボタン
 ========================= */
 
 .table-wrapper {
@@ -402,6 +406,44 @@ a {
 .admin-table td:first-child {
   min-width: 200px;
   font-weight: 700;
+}
+
+.admin-pagination {
+  /* ページ番号はJavaScriptが一覧件数に応じて生成する */
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 16px;
+}
+
+.admin-pagination:empty {
+  display: none;
+}
+
+.admin-pagination-button {
+  min-width: 36px;
+  min-height: 36px;
+  padding: 6px 10px;
+  background: #ffffff;
+  color: var(--admin-primary);
+  border: 1px solid var(--admin-border);
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.admin-pagination-button:hover:not(:disabled),
+.admin-pagination-button[aria-current="page"] {
+  background: var(--admin-primary);
+  color: #ffffff;
+  border-color: var(--admin-primary);
+}
+
+.admin-pagination-button:disabled {
+  color: var(--admin-muted);
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .table-actions {
@@ -512,7 +554,7 @@ a {
 }
 
 /* =========================
-   レスポンシブ
+   画面幅に応じた管理画面レイアウトと動きを抑える設定
 ========================= */
 
 @media (max-width: 900px) {

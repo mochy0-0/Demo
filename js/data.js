@@ -12,6 +12,7 @@
 
   const STORAGE_KEY = "centerPortalRenewalDemoData";
 
+  // 初回表示時のデモ内容と、既存データに追加する標準カテゴリー・種類。
   const initialData = {
     categories: [
       {
@@ -19,7 +20,9 @@
         name: "BD",
         details: [
           { id: "bd-detail-1", name: "詳細カテゴリーA" },
-          { id: "bd-detail-2", name: "詳細カテゴリーB" }
+          { id: "bd-detail-2", name: "詳細カテゴリーB" },
+          { id: "bd-detail-3", name: "詳細カテゴリーC" },
+          { id: "bd-detail-4", name: "詳細カテゴリーD" }
         ]
       },
       {
@@ -27,7 +30,9 @@
         name: "EB",
         details: [
           { id: "eb-detail-1", name: "詳細カテゴリーA" },
-          { id: "eb-detail-2", name: "詳細カテゴリーB" }
+          { id: "eb-detail-2", name: "詳細カテゴリーB" },
+          { id: "eb-detail-3", name: "詳細カテゴリーC" },
+          { id: "eb-detail-4", name: "詳細カテゴリーD" }
         ]
       },
       {
@@ -35,7 +40,9 @@
         name: "全体",
         details: [
           { id: "all-detail-1", name: "詳細カテゴリーA" },
-          { id: "all-detail-2", name: "詳細カテゴリーB" }
+          { id: "all-detail-2", name: "詳細カテゴリーB" },
+          { id: "all-detail-3", name: "詳細カテゴリーC" },
+          { id: "all-detail-4", name: "詳細カテゴリーD" }
         ]
       }
     ],
@@ -90,6 +97,8 @@
       }
     ],
 
+    announcementTypes: ["メンテナンス", "全体連絡"],
+
     history: [
       {
         id: "history-demo-001",
@@ -103,6 +112,8 @@
     return JSON.parse(JSON.stringify(value));
   }
 
+  // localStorageから共有データを読み込む。初回は初期値を保存し、
+  // 古い形式のデータには不足している標準項目だけを補完する。
   function loadData() {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
@@ -125,6 +136,62 @@
         throw new Error("保存データの形式が正しくありません。");
       }
 
+      let dataUpdated = false;
+
+      initialData.categories.forEach((defaultCategory) => {
+        const category = parsed.categories.find(
+          (item) => item.id === defaultCategory.id
+        );
+
+        if (!category) {
+          parsed.categories.push(cloneData(defaultCategory));
+          dataUpdated = true;
+          return;
+        }
+
+        if (!Array.isArray(category.details)) {
+          category.details = [];
+          dataUpdated = true;
+        }
+
+        defaultCategory.details.forEach((defaultDetail) => {
+          const detailExists = category.details.some(
+            (detail) => detail.id === defaultDetail.id
+          );
+
+          if (!detailExists) {
+            category.details.push(cloneData(defaultDetail));
+            dataUpdated = true;
+          }
+        });
+      });
+
+      if (!Array.isArray(parsed.announcementTypes)) {
+        parsed.announcementTypes = [];
+        dataUpdated = true;
+      }
+
+      const validAnnouncementTypes = parsed.announcementTypes.filter(
+        (type) => typeof type === "string" && type.trim()
+      );
+
+      if (validAnnouncementTypes.length !== parsed.announcementTypes.length) {
+        dataUpdated = true;
+      }
+
+      parsed.announcementTypes = validAnnouncementTypes;
+
+      initialData.announcementTypes.forEach((defaultType) => {
+        if (!parsed.announcementTypes.includes(defaultType)) {
+          parsed.announcementTypes.push(defaultType);
+          dataUpdated = true;
+        }
+      });
+
+      if (dataUpdated) {
+        saveData(parsed);
+      }
+
       return parsed;
     } catch (error) {
       console.error("データの読み込みに失敗しました。", error);
@@ -132,6 +199,7 @@
     }
   }
 
+  // 現在の共有データをlocalStorageへ保存し、成功・失敗を呼び出し元へ返す。
   function saveData(data) {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -142,6 +210,7 @@
     }
   }
 
+  // ブラウザ対応状況に応じて一意なIDを作成する。
   function createId(prefix = "item") {
     if (
       typeof crypto !== "undefined" &&
@@ -156,6 +225,7 @@
   }
 
   function addHistory(data, title) {
+    // 最新の変更履歴を先頭に置き、保存データが増え続けないよう100件に制限する。
     data.history.unshift({
       id: createId("history"),
       title,

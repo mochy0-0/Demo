@@ -13,6 +13,7 @@
 </head>
 
 <body>
+  <!-- 管理画面のブランド表示と閲覧画面への戻りリンク -->
   <header class="admin-header">
     <div class="admin-brand">
       <a class="admin-logo" href="../index.html">
@@ -39,7 +40,7 @@
       </p>
     </section>
 
-    <!-- 管理メニュー -->
+    <!-- data-admin-tabの値をadmin.jsが読み取り、対応する管理パネルを切り替える -->
     <nav class="admin-tabs" aria-label="管理メニュー">
       <button
         type="button"
@@ -48,6 +49,15 @@
         aria-pressed="true"
       >
         資料管理
+      </button>
+
+      <button
+        type="button"
+        class="admin-tab"
+        data-admin-tab="daily-announcements"
+        aria-pressed="false"
+      >
+        今日のお知らせ
       </button>
 
       <button
@@ -78,7 +88,7 @@
       </button>
     </nav>
 
-    <!-- 資料管理 -->
+    <!-- 資料の検索・状態絞り込み・編集操作を行う一覧 -->
     <section
       class="admin-panel"
       id="materialsPanel"
@@ -132,13 +142,79 @@
           </tbody>
         </table>
       </div>
+      <nav class="admin-pagination" id="materialsPagination" aria-label="資料一覧のページ移動"></nav>
 
       <p class="admin-message" id="materialsMessage" aria-live="polite">
         資料一覧を読み込んでいます。
       </p>
     </section>
 
-    <!-- お知らせ管理 -->
+    <!-- 当日掲載分のお知らせと、種類の選択肢を管理する一覧 -->
+    <section
+      class="admin-panel"
+      id="dailyAnnouncementsPanel"
+      aria-labelledby="dailyAnnouncementsHeading"
+      hidden
+    >
+      <div class="panel-heading">
+        <div>
+          <h2 id="dailyAnnouncementsHeading">今日のお知らせ一覧</h2>
+          <p>閲覧画面の「本日のお知らせ」に表示する内容と、種類の選択肢を管理します。</p>
+        </div>
+
+        <button
+          type="button"
+          class="primary-button"
+          id="addDailyAnnouncementButton"
+        >
+          ＋ 今日のお知らせを追加
+        </button>
+      </div>
+
+      <form id="announcementTypeForm">
+        <div class="form-field">
+          <label for="newAnnouncementType">種類の選択肢を追加</label>
+          <input
+            type="text"
+            id="newAnnouncementType"
+            maxlength="40"
+            placeholder="例：障害情報"
+            required
+          >
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="secondary-button">
+            種類を追加
+          </button>
+        </div>
+      </form>
+
+      <p class="admin-message" id="announcementTypesMessage" aria-live="polite"></p>
+
+      <div class="table-wrapper">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th scope="col">タイトル</th>
+              <th scope="col">種類</th>
+              <th scope="col">状態</th>
+              <th scope="col">操作</th>
+            </tr>
+          </thead>
+
+          <tbody id="dailyAnnouncementsTableBody">
+            <!-- 今日のお知らせをJavaScriptで表示 -->
+          </tbody>
+        </table>
+      </div>
+      <nav class="admin-pagination" id="dailyAnnouncementsPagination" aria-label="今日のお知らせ一覧のページ移動"></nav>
+
+      <p class="admin-message" id="dailyAnnouncementsMessage" aria-live="polite">
+        今日のお知らせを読み込んでいます。
+      </p>
+    </section>
+
+    <!-- 掲載日を問わず、すべてのお知らせを検索・管理する一覧 -->
     <section
       class="admin-panel"
       id="announcementsPanel"
@@ -160,6 +236,15 @@
         </button>
       </div>
 
+      <div class="admin-filter admin-filter-single">
+        <label for="adminAnnouncementSearch">お知らせを検索</label>
+        <input
+          type="search"
+          id="adminAnnouncementSearch"
+          placeholder="タイトル・種類・キーワード"
+        >
+      </div>
+
       <div class="table-wrapper">
         <table class="admin-table">
           <thead>
@@ -176,12 +261,14 @@
           </tbody>
         </table>
       </div>
+      <nav class="admin-pagination" id="announcementsPagination" aria-label="お知らせ一覧のページ移動"></nav>
 
       <p class="admin-message" id="announcementsMessage" aria-live="polite">
         お知らせ一覧を読み込んでいます。
       </p>
     </section>
 
+    <!-- 閲覧画面の確認テスト用ショートカットに割り当てた資料 -->
     <section
       class="admin-panel"
       id="testShortcutPanel"
@@ -211,9 +298,11 @@
           <tbody id="testShortcutTableBody"></tbody>
         </table>
       </div>
+      <nav class="admin-pagination" id="testShortcutPagination" aria-label="確認テスト用のページ移動"></nav>
       <p class="admin-message" id="testShortcutMessage" aria-live="polite"></p>
     </section>
 
+    <!-- 閲覧画面の席替え用ショートカットに割り当てた資料 -->
     <section
       class="admin-panel"
       id="fileShortcutPanel"
@@ -243,10 +332,11 @@
           <tbody id="fileShortcutTableBody"></tbody>
         </table>
       </div>
+      <nav class="admin-pagination" id="fileShortcutPagination" aria-label="席替え用のページ移動"></nav>
       <p class="admin-message" id="fileShortcutMessage" aria-live="polite"></p>
     </section>
 
-    <!-- 資料編集フォーム -->
+    <!-- 新規追加・編集で共用する資料入力フォーム -->
     <section
       class="admin-panel editor-panel"
       id="materialEditorPanel"
@@ -343,7 +433,7 @@
       </form>
     </section>
 
-    <!-- お知らせ編集フォーム -->
+    <!-- 新規追加・編集で共用するお知らせ入力フォーム -->
     <section
       class="admin-panel editor-panel"
       id="announcementEditorPanel"
@@ -381,13 +471,7 @@
 
         <div class="form-field">
           <label for="announcementType">種類 <span>*</span></label>
-          <input
-            type="text"
-            id="announcementType"
-            maxlength="40"
-            placeholder="例：お知らせ"
-            required
-          >
+          <select id="announcementType" required></select>
         </div>
 
         <div class="form-field">

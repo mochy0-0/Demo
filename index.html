@@ -20,6 +20,7 @@
       </span>
     </a>
 
+    <!-- 資料とお知らせを検索し、結果はメインエリアに表示する -->
     <form class="search-form" id="searchForm" role="search">
       <label class="visually-hidden" for="searchInput">
         キーワード検索
@@ -59,21 +60,25 @@
         </div>
       </div>
 
+      <!-- 選択中カテゴリーの詳細カテゴリー、または資料一覧をJavaScriptで表示 -->
       <div class="detail-category-list" id="detailCategoryList">
         <!-- 詳細カテゴリーをJavaScriptで表示 -->
       </div>
 
+      <!-- 検索結果をJavaScriptで挿入する。通常のカテゴリー表示とは独立して切り替える -->
       <section class="search-results" id="searchResults" aria-labelledby="searchResultsTitle" aria-live="polite" hidden>
         <h2 id="searchResultsTitle">検索結果</h2>
         <div id="searchResultsList"></div>
       </section>
 
+      <!-- 選択された資料本文を表示する領域 -->
       <section class="material-detail" id="materialDetail" aria-live="polite" hidden>
         <!-- 選択した資料の詳細を表示 -->
       </section>
     </section>
 
     <!-- 本日のお知らせ・お知らせ -->
+    <!-- 今日のお知らせと通常のお知らせを並べて表示する -->
     <div class="information-grid">
       <!-- 本日のお知らせ -->
       <section class="information-panel" aria-labelledby="dailyAnnouncementsTitle">
@@ -107,19 +112,12 @@
         <ul class="information-list" id="newsList">
           <!-- お知らせをJavaScriptで表示 -->
         </ul>
-
-        <section
-          class="announcement-detail"
-          id="announcementDetail"
-          aria-labelledby="announcementDetailTitle"
-          aria-live="polite"
-          hidden
-        ></section>
       </section>
     </div>
 
 
     <!-- スタッフ向けショートカット -->
+    <!-- 用途別の資料ショートカット。検索結果は各ボタンの直下に表示 -->
     <section class="shortcut-section" aria-labelledby="shortcutTitle">
       <div class="panel-heading">
         <div>

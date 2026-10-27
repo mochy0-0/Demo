@@ -1,6 +1,6 @@
 
 /* =========================
-   基本設定
+   共通の色・余白・文字・アクセシビリティ設定
 ========================= */
 
 :root {
@@ -191,7 +191,7 @@ a {
 }
 
 /* =========================
-   BD・EB・全体ナビゲーション
+   BD・EB・全体ナビゲーションと詳細カテゴリー選択
 ========================= */
 
 .category-nav {
@@ -270,8 +270,9 @@ a {
 ========================= */
 
 .detail-category-list {
+  /* 詳細カテゴリーはPCでは2列、狭い画面ではメディアクエリで1列にする */
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
 }
 
@@ -393,6 +394,16 @@ a {
   transition: border-color 0.16s ease, background-color 0.16s ease;
 }
 
+.announcement-search-result {
+  flex-wrap: wrap;
+}
+
+.announcement-search-result .inline-announcement-detail {
+  box-sizing: border-box;
+  flex: 0 0 100%;
+  width: 100%;
+}
+
 .material-item:hover {
   background: var(--color-hover);
   border-color: #b9c9d7;
@@ -458,6 +469,13 @@ a {
   border-color: var(--color-accent);
 }
 
+.material-open-button:disabled,
+.material-open-button:disabled:hover {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  cursor: not-allowed;
+}
+
 .material-open-button span {
   transition: transform 0.16s ease;
 }
@@ -500,7 +518,7 @@ a {
 }
 
 /* =========================
-   検索結果
+   検索結果、ページ送り、資料詳細
 ========================= */
 
 .search-results {
@@ -527,6 +545,44 @@ a {
   text-align: center;
 }
 
+.pagination {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 20px;
+}
+
+.pagination-list-item {
+  padding: 0 !important;
+  border: 0 !important;
+}
+
+.pagination-button {
+  min-width: 38px;
+  min-height: 38px;
+  padding: 7px 10px;
+  background: #ffffff;
+  color: var(--color-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.pagination-button:hover:not(:disabled),
+.pagination-button[aria-current="page"] {
+  background: var(--color-primary);
+  color: #ffffff;
+  border-color: var(--color-primary);
+}
+
+.pagination-button:disabled {
+  color: var(--color-muted);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .material-detail {
   margin-top: 24px;
   padding: 24px;
@@ -547,7 +603,7 @@ a {
 }
 
 /* =========================
-   お知らせ・更新履歴
+   今日のお知らせ・お知らせと、項目直下に開く詳細
 ========================= */
 
 
@@ -690,6 +746,11 @@ a {
   scroll-margin-top: 110px;
 }
 
+.inline-announcement-detail {
+  margin-top: 10px;
+  padding: 16px;
+}
+
 .announcement-detail-label {
   margin: 0 0 12px;
   color: var(--color-primary);
@@ -794,7 +855,7 @@ a {
 
 
 /* =========================
-   ショートカット
+   オペレーター向けショートカットと、その場に表示する資料
 ========================= */
 
 .shortcut-section {
@@ -860,6 +921,11 @@ a {
 .shortcut-results .material-item {
   align-items: flex-start;
   flex-direction: column;
+}
+
+.shortcut-results .shortcut-material-detail {
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .shortcut-results .material-open-button {
@@ -933,7 +999,7 @@ a {
 }
 
 /* =========================
-   レスポンシブ
+   画面幅に応じたレイアウト調整と動きを抑える設定
 ========================= */
 
 @media (max-width: 760px) {
