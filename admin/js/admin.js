@@ -793,12 +793,12 @@
       `全${data.announcements.length}件中 ${filtered.length}件を表示しています。`;
   }
 
-  // 今日の日付と登録済み種類の両方に該当するお知らせだけを管理一覧へ表示する。
+  // 今日の日付と「本日のお知らせ」の種類に該当する項目だけを管理一覧へ表示する。
   function renderDailyAnnouncementTable() {
     const announcements = data.announcements.filter(
       (announcement) =>
         announcement.date === getToday() &&
-        data.announcementTypes.includes(announcement.type)
+        announcement.type === dataApi.DAILY_ANNOUNCEMENT_TYPE
     );
 
     elements.dailyAnnouncementsTableBody.innerHTML = "";
@@ -807,7 +807,7 @@
     if (announcements.length === 0) {
       elements.dailyAnnouncementsTableBody.innerHTML = `
         <tr>
-          <td colspan="4">今日のお知らせはありません。</td>
+          <td colspan="4">本日のお知らせはありません。</td>
         </tr>
       `;
     } else {
@@ -870,7 +870,7 @@
     }
 
     elements.dailyAnnouncementsMessage.textContent =
-      `今日のお知らせを${announcements.length}件管理しています。`;
+      `本日のお知らせを${announcements.length}件管理しています。`;
   }
 
   // お知らせフォームの種類選択肢を、既定値・登録済み種類・編集中の値から組み立てる。
@@ -897,7 +897,7 @@
       `登録済みの種類：${data.announcementTypes.join("、")}`;
   }
 
-  // 今日のお知らせ用の種類を重複確認して登録し、共有データへ保存する。
+  // お知らせの種類を重複確認して登録し、共有データへ保存する。
   function addAnnouncementType(event) {
     event.preventDefault();
 
@@ -908,8 +908,12 @@
       return;
     }
 
-    if (data.announcementTypes.includes(type) || type === "お知らせ") {
-      alert("この種類はすでに登録されています。");
+    if (
+      data.announcementTypes.includes(type) ||
+      type === "お知らせ" ||
+      type === dataApi.DAILY_ANNOUNCEMENT_TYPE
+    ) {
+      alert("この種類はすでに登録されているか、予約済みです。");
       return;
     }
 
@@ -1084,7 +1088,7 @@
 
   elements.addDailyAnnouncementButton.addEventListener("click", () => {
     showPanel("daily-announcements");
-    openAnnouncementEditor(null, "メンテナンス");
+    openAnnouncementEditor(null, dataApi.DAILY_ANNOUNCEMENT_TYPE);
   });
 
   document.querySelectorAll("[data-add-shortcut]").forEach((button) => {

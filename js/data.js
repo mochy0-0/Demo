@@ -11,6 +11,7 @@
   "use strict";
 
   const STORAGE_KEY = "centerPortalRenewalDemoData";
+  const DAILY_ANNOUNCEMENT_TYPE = "本日のお知らせ";
 
   // 初回表示時のデモ内容と、既存データに追加する標準カテゴリー・種類。
   const initialData = {
@@ -97,7 +98,11 @@
       }
     ],
 
-    announcementTypes: ["メンテナンス", "全体連絡"],
+    announcementTypes: [
+      DAILY_ANNOUNCEMENT_TYPE,
+      "メンテナンス",
+      "全体連絡"
+    ],
 
     history: [
       {
@@ -237,6 +242,7 @@
 
   window.CenterPortalData = {
     STORAGE_KEY,
+    DAILY_ANNOUNCEMENT_TYPE,
     initialData: cloneData(initialData),
     loadData,
     saveData,

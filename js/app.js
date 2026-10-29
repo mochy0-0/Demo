@@ -67,6 +67,13 @@
     ].join("-");
   }
 
+  function isCurrentDailyAnnouncement(announcement) {
+    return (
+      announcement.type === dataApi.DAILY_ANNOUNCEMENT_TYPE &&
+      announcement.date === getToday()
+    );
+  }
+
   // 一覧ごとに独立したページ状態を保ちながら、現在ページ分だけを返す。
   function getPagedItems(items, pageKey) {
     const pageCount = Math.max(1, Math.ceil(items.length / pageSize));
@@ -383,7 +390,11 @@
     const announcementResults = shortcut
       ? []
       : data.announcements.filter((announcement) => {
-          if (announcement.hidden) {
+          if (
+            announcement.hidden ||
+            (announcement.type === dataApi.DAILY_ANNOUNCEMENT_TYPE &&
+              !isCurrentDailyAnnouncement(announcement))
+          ) {
             return false;
           }
 
@@ -527,7 +538,9 @@
     newsList.innerHTML = "";
 
     const visibleAnnouncements = data.announcements.filter(
-      (item) => !item.hidden
+      (item) =>
+        !item.hidden &&
+        item.type !== dataApi.DAILY_ANNOUNCEMENT_TYPE
     );
 
     if (visibleAnnouncements.length === 0) {
@@ -590,7 +603,11 @@
     listContainer = newsList
   ) {
     const announcement = data.announcements.find(
-      (item) => item.id === announcementId && !item.hidden
+      (item) =>
+        item.id === announcementId &&
+        !item.hidden &&
+        (item.type !== dataApi.DAILY_ANNOUNCEMENT_TYPE ||
+          isCurrentDailyAnnouncement(item))
     );
 
     if (!announcement) {
@@ -668,7 +685,7 @@
   }
 
 
-// 今日の日付・登録済み種類に一致する公開お知らせを本日欄へ表示する。
+// 今日の日付・「本日のお知らせ」の種類に一致する公開お知らせを本日欄へ表示する。
 function renderHistory() {
   historyList.innerHTML = "";
 
@@ -697,12 +714,12 @@ if (title) {
 
 
 
-  // 登録済みの種類に該当する今日のお知らせを取得
+  // 当日掲載の「本日のお知らせ」を取得
   const todayAnnouncements = (data.announcements || []).filter(
     announcement =>
       !announcement.hidden &&
       announcement.date === todayString &&
-      data.announcementTypes.includes(announcement.type)
+      announcement.type === dataApi.DAILY_ANNOUNCEMENT_TYPE
   );
 
   // 対象のお知らせがなければ「なし」と表示
@@ -764,8 +781,7 @@ function showDailyAnnouncementDetail(announcementId, triggerButton, detail) {
     (item) =>
       item.id === announcementId &&
       !item.hidden &&
-      item.date === getToday() &&
-      data.announcementTypes.includes(item.type)
+      isCurrentDailyAnnouncement(item)
   );
 
   if (!announcement) {
